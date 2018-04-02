@@ -13,11 +13,25 @@ void readDirRecurse(const string &);
 
 int main(int argc, char **argv) {
     umask(0000);
-    char *dirName = argv[1];
+    string dirName = argv[2];
+    string flag = argv[1];
 
-    string dirNameString = string(dirName).substr(0, dirNameString.size() - 1) + string(".arch");
-    open(dirNameString.c_str(), O_WRONLY | O_TRUNC, 0700);
-    readDirRecurse(string(dirName));
+    if(flag == "c"){
+        string dirNameString = dirName.substr(0, dirNameString.size() - 1) + string(".arch");
+        open(dirNameString.c_str(), O_RDONLY | O_TRUNC, 0700);
+        readDirRecurse(string(dirName));
+    } else if(flag == "x"){
+        struct stat s{};
+
+        stat(dirName.c_str(), &s);
+        char fileBuffer[s.st_size]; // buffer with capacity == size arch file
+        int fd = open(dirName.c_str(), O_RDONLY, 0700);
+        read(fd, &fileBuffer, (size_t) (s.st_size)); // read contents of file into buffer
+
+        for(int i=0 ; i<s.st_size ; ++i)
+            cout << fileBuffer[i];
+    }
+
     return 0;
 }
 
